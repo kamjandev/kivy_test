@@ -10,6 +10,11 @@ jobs:
     steps:
       # Checkout repository
       - uses: actions/checkout@v4
+      # Setup a managed Python environment to avoid 'externally-managed-environment' error
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Use a specific version like '3.10', '3.11', etc.
 
       # Used to cache dependencies with a timeout
       - name: Get Date
