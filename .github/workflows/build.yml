@@ -38,7 +38,7 @@ jobs:
           buildozer_version: stable
         # --- FIX ADDED HERE ---
         env:
-          USER: runner 
+          USER: root 
         # --- FIX ADDED HERE ---
 
       - name: Upload artifacts
