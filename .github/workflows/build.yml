@@ -7,7 +7,7 @@ on:
 
 jobs:
   build_apk:
-    runs-on: ubuntu-latest # Or another suitable runner
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
@@ -16,19 +16,22 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9' # Specify your Python version
+        python-version: '3.9' # Use a stable and compatible version
 
-    - name: Install Buildozer and dependencies
+    - name: Install Buildozer dependencies and buildozer itself
       run: |
+        # System dependencies required by Buildozer on Ubuntu
         sudo apt-get update
-        sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses-dev libbz2-dev libssl-dev
-        pip install buildozer
+        sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses-dev libbz2-dev libssl-dev libffi-dev
+        # Python dependencies, including Cython which was missing before
+        pip install --upgrade buildozer cython
 
     - name: Build Android APK
-      run: buildozer android debug # Or buildozer android release if signing
+      # This command will trigger the build process, which now has all dependencies
+      run: buildozer android debug
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: kivy-app-apk
-        path: bin/*.apk # Adjust path based on your buildozer.spec
+        path: bin/*.apk
