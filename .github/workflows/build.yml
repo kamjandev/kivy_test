@@ -16,32 +16,29 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9' # Use a stable and compatible version
+        python-version: '3.9'
 
     - name: Install Buildozer dependencies and buildozer itself
       run: |
-        # System dependencies required by Buildozer on Ubuntu
+        # System dependencies required by Buildozer on Ubuntu, added 'automake' and 'make'
         sudo apt-get update
-        sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses-dev libbz2-dev libssl-dev libffi-dev
-        # Python dependencies, including Cython which was missing before
+        sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses-dev libbz2-dev libssl-dev libffi-dev make automake
+        # Python dependencies
         pip install --upgrade buildozer cython
 
-    # --- THIS STEP IS WHERE THE FIX IS APPLIED ---
-    - name: Download Android SDK components and accept licenses
+    - name: Accept Android SDK licenses and update tools
       run: |
-        # Create dummy config files for sdkmanager to run correctly
         mkdir -p $HOME/.android/
         touch $HOME/.android/repositories.cfg
-        # Use 'yes |' to automatically accept SDK licenses and install components
         yes | buildozer android update
         buildozer android clean
 
     - name: Build Android APK
-      # This command will trigger the build process, which now has all dependencies
+      # This step should now run successfully as Autotools are fully installed
       run: buildozer android debug
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: kivy-app-apk
-        path: bin/*.apk # Adjust path based on your buildozer.spec
+        path: bin/*.apk
