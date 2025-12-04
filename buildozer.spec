@@ -1,3 +1,4 @@
+[app]
 # (int) Target Android API, should be as high as possible.
 android.api = 34
 # (int) Minimum API your APK / AAB will support.
