@@ -13,14 +13,14 @@ package.domain = org.example
 source.dir = .
 
 # (list) Source files to include (leave empty to include all files)
-source.include_exts = py,png,jpg,kv,atlas
+source.include_exts = py,png,jpg,kv,atlas,mp3
 
 # (str) Application versioning (method 1)
 version = 0.1
 
 # (list) Application requirements
 # Use simple names; python-for-android automatically selects compatible versions.
-requirements = python3,kivy,pillow
+requirements = python3,kivy,pillow,ffpyplayer
 
 # (list) Supported orientations: landscape, portrait, portrait-reverse or landscape-reverse
 orientation = portrait
