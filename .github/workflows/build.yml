@@ -9,7 +9,7 @@ jobs:
 
     steps:
       # Checkout repository
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # Used to cache dependencies with a timeout
       - name: Get Date
@@ -31,7 +31,7 @@ jobs:
           key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
 
       - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
+        uses: ArtemSBulgakov/buildozer-action@v4
         id: buildozer
         with:
           command: buildozer android debug
