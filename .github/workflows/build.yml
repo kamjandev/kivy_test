@@ -1,4 +1,4 @@
-name: Kivy Android Build
+name: Kivy Android Build (via Action)
 
 on:
   push:
@@ -6,43 +6,24 @@ on:
       - main
 
 jobs:
-  build_apk:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
+      # This single step handles all Python, SDK, NDK, and Autotools setup
+      - name: Build APK using buildozer-action
+        uses: digreatbrian/buildozer-action@v2
+        with:
+          # Use a compatible Python version (3.9 is standard for this action)
+          python-version: 3.9 
+          # Pass the build command directly to the action
+          buildozer-cmd: buildozer android debug
 
-    - name: Install Buildozer system dependencies and python packages
-      run: |
-        # Install all required system dependencies
-        sudo apt-get update
-        sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses-dev libbz2-dev libssl-dev libffi-dev make automake
-        
-        # --- FIX: Create a symbolic link for libtinfo5 which is missing in Ubuntu 22.04 ---
-        # The required functionality is provided by libncursesw6 in newer Ubuntu versions.
-        ln -s /lib/x86_64-linux-gnu/libncursesw.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5 || true
-
-        # Install buildozer and cython
-        pip install --upgrade buildozer cython
-
-    - name: Accept Android SDK licenses and download components
-      run: |
-        mkdir -p $HOME/.android/
-        touch $HOME/.android/repositories.cfg
-        yes | buildozer android update
-        buildozer android clean
-
-    - name: Build Android APK
-      run: buildozer android debug
-
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: kivy-app-apk
-        path: bin/*.apk
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kivy-app-apk
+          path: ./bin/*.apk
