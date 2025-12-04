@@ -13,30 +13,35 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Set up Python 3.9
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9'
+        # Use Python 3.9 for best compatibility
+        python-version: '3.9' 
 
     - name: Install Buildozer system dependencies and python packages
       run: |
-        # Update packages and install all required system dependencies (incl. openjdk, autotools, make)
+        # Update packages and install all required system dependencies 
+        # Including make and automake to fix the LT_SYS_SYMBOL_USCORE error
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses-dev libbz2-dev libssl-dev libffi-dev make automake
         
-        # Install buildozer and cython (which was missing in an earlier error)
+        # Install buildozer and cython
         pip install --upgrade buildozer cython
 
-
-    - name: Accept Android SDK licenses and update tools
+    - name: Accept Android SDK licenses and download components
       run: |
+        # Create necessary dummy config files for sdkmanager to run non-interactively
         mkdir -p $HOME/.android/
         touch $HOME/.android/repositories.cfg
+        
+        # Use 'yes |' to automatically accept all licenses and download the SDK/NDK/Tools
         yes | buildozer android update
+        
+        # Clean up prior partial builds
         buildozer android clean
 
     - name: Build Android APK
-      # This step should now run successfully as Autotools are fully installed
       run: buildozer android debug
 
     - name: Upload APK artifact
