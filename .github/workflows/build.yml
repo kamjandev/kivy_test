@@ -25,10 +25,15 @@ jobs:
         sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses-dev libbz2-dev libssl-dev libffi-dev
         # Python dependencies, including Cython which was missing before
         pip install --upgrade buildozer cython
-    # --- ADD THIS STEP ---
-    - name: Download Android SDK components
+
+    # --- THIS STEP IS WHERE THE FIX IS APPLIED ---
+    - name: Download Android SDK components and accept licenses
       run: |
-        buildozer android update
+        # Create dummy config files for sdkmanager to run correctly
+        mkdir -p $HOME/.android/
+        touch $HOME/.android/repositories.cfg
+        # Use 'yes |' to automatically accept SDK licenses and install components
+        yes | buildozer android update
         buildozer android clean
 
     - name: Build Android APK
@@ -39,4 +44,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: kivy-app-apk
-        path: bin/*.apk
+        path: bin/*.apk # Adjust path based on your buildozer.spec
