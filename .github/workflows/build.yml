@@ -5,49 +5,52 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Can use ubuntu-latest now we control installation
 
     steps:
-      # Checkout repository
-      - uses: actions/checkout@v4
-      # Setup a managed Python environment to avoid 'externally-managed-environment' error
+      - uses: actions/checkout@v2
+
+      # Setup a managed Python environment (Good practice, helps manage dependencies)
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Use a specific version like '3.10', '3.11', etc.
+          python-version: '3.10'
 
-      # Used to cache dependencies with a timeout
+      - name: Install Buildozer and dependencies (Fixes 'externally-managed' error)
+        run: |
+          pip install --upgrade buildozer --break-system-packages
+          # Also install any other required dependencies using this method if needed
+
+      # ... (rest of your steps remain the same)
       - name: Get Date
         id: get-date
-        run: |
-          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
-        shell: bash
+        # ... (date script)
 
       - name: Cache Buildozer global directory
-        uses: actions/cache@v4
-        with:
-          path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }} # Replace with your path
+        # ...
 
-      - name: Cache Buildozer local directory
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
+      # ... (Cache Buildozer local directory)
 
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          command: buildozer android debug
-          buildozer_version: stable
-        # --- FIX ADDED HERE ---
-        env:
-          USER: root 
-        # --- FIX ADDED HERE ---
+      - name: Build with Buildozer Command
+        # Instead of 'uses: ArtemSBulgakov/buildozer-action@v1', we just run the command
+        id: buildozer_run_command # New ID for the step output
+        run: buildozer android debug
+        # You can use the `env:` block here if you need specific environment variables
+        # for the build process, like ANDROID_HOME or NDK_HOME.
+        
+      # We need a way to get the output filename, which the previous action provided.
+      # Buildozer usually outputs to 'bin/*.apk'. We need to find that path dynamically.
+
+      - name: Find the generated APK file path
+        id: find_apk
+        run: |
+          APK_PATH=$(find bin -name "*.apk" | head -n 1)
+          echo "::set-output name=filename::$APK_PATH"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
           name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+          # Use the output from the *new* step ID
+          path: ${{ steps.find_apk.outputs.filename }}
+
