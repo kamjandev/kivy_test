@@ -10,7 +10,12 @@ jobs:
     steps:
       # Checkout repository
       - uses: actions/checkout@v4
-
+      # --- FIX STARTS HERE ---
+      - name: Ensure correct ownership of the workspace
+        run: |
+          sudo chown -R $(whoami):$(whoami) $GITHUB_WORKSPACE
+        shell: bash
+      # --- FIX ENDS HERE ---
       # Used to cache dependencies with a timeout
       - name: Get Date
         id: get-date
