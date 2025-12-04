@@ -1,29 +1,36 @@
-name: Kivy Android Build (via Action)
-
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # This single step handles all Python, SDK, NDK, and Autotools setup
-      - name: Build APK using buildozer-action
+      - uses: actions/checkout@v4
+      - name: Build APK
         uses: digreatbrian/buildozer-action@v2
         with:
-          # Use a compatible Python version (3.9 is standard for this action)
-          python-version: 3.9 
-          # Pass the build command directly to the action
-          buildozer-cmd: buildozer android debug
+          python-version: 3.11
+          buildozer-cmd: buildozer -v android debug
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: kivy-app-apk
+          name: package
           path: ./bin/*.apk
+
+### buildozer.spect
+
+Use these configurations
+
+# (int) Target Android API, should be as high as possible.
+android.api = 34
+
+# (int) Minimum API your APK / AAB will support.
+android.minapi = 21
+
+# (int) Android SDK version to use
+android.sdk = 34
+
+# (str) Android NDK version to use
+android.ndk = 25b
