@@ -10,12 +10,7 @@ jobs:
     steps:
       # Checkout repository
       - uses: actions/checkout@v4
-      # --- FIX STARTS HERE ---
-      - name: Ensure correct ownership of the workspace
-        run: |
-          sudo chown -R $(whoami):$(whoami) $GITHUB_WORKSPACE
-        shell: bash
-      # --- FIX ENDS HERE ---
+
       # Used to cache dependencies with a timeout
       - name: Get Date
         id: get-date
@@ -41,6 +36,10 @@ jobs:
         with:
           command: buildozer android debug
           buildozer_version: stable
+        # --- FIX ADDED HERE ---
+        env:
+          USER: runner 
+        # --- FIX ADDED HERE ---
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
