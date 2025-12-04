@@ -25,6 +25,11 @@ jobs:
         sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses-dev libbz2-dev libssl-dev libffi-dev
         # Python dependencies, including Cython which was missing before
         pip install --upgrade buildozer cython
+    # --- ADD THIS STEP ---
+    - name: Download Android SDK components
+      run: |
+        buildozer android update
+        buildozer android clean
 
     - name: Build Android APK
       # This command will trigger the build process, which now has all dependencies
